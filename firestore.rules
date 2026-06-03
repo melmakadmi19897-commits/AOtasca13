@@ -1,0 +1,30 @@
+// firestore.rules
+// ============================================================
+// REGLAS DE SEGURIDAD — cada usuario solo accede a sus datos
+// Publica estas reglas en Firebase Console → Firestore → Rules
+// ============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Playlists: solo el propietario puede leer/escribir
+    match /playlists/{playlistId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == resource.data.userId;
+
+      // Al crear, verificar que el userId coincide con el usuario autenticado
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Canciones: solo el propietario puede leer/escribir
+    match /songs/{songId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == resource.data.userId;
+
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.userId;
+    }
+  }
+}
